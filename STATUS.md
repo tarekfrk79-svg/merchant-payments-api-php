@@ -4,9 +4,15 @@ Verified on 24 September 2026. **MVP functional; project remains in development.
 
 ## Interactive demo update
 
-Implemented locally: Twig/native-JavaScript `/demo`, accepted/declined scenarios, same-UUID retry, per-session history, exact euro-to-cent parsing, €100 maximum, 10-payment quota, 30 requests/minute, CSRF protection and one-hour sessions. The existing PaymentService and API protection are retained. Demo records are explicitly marked and a preview-first cleanup command is provided.
+Deployed and verified: Twig/native-JavaScript `/demo`, accepted/declined scenarios, same-UUID retry, per-session history, exact euro-to-cent parsing, €100 maximum, 10-payment quota, 30 requests/minute, CSRF protection and one-hour sessions. The existing PaymentService and API protection are retained. Demo records are explicitly marked and a preview-first cleanup command is provided.
 
-Local tests: **28 tests / 148 assertions passing**; **PHPStan level 6: zero errors**. Real Chrome checks pass for creation, replay with identical UUID despite form edits, declined simulation, maximum amount, persistent session history and mobile visitor isolation. No API-key header is sent by the demo. CI and public deployment of this update are pending verification.
+Local tests: **28 tests / 148 assertions passing**; **PHPStan level 6: zero errors**. Real Chrome checks pass for creation, replay with identical UUID despite form edits, declined simulation, maximum amount, persistent session history and mobile visitor isolation. No API-key header is sent by the demo. [CI succeeded on PostgreSQL](https://github.com/tarekfrk79-svg/merchant-payments-api-php/actions/runs/35981987397) for implementation commit `8c6dbe3`. Railway deployment `3b626795-260d-4d03-b868-add3bb95d275` succeeded, including the additive demo-flag migration.
+
+**Public demo: https://merchantpay-production.up.railway.app/demo**
+
+The same real-Chrome checks passed against the public Railway URL: accepted/declined payments, same UUID on replay despite form edits, €100 cap, history after reload, a separate mobile visitor with empty history, no JavaScript errors and no API-key request headers. No production API key was used or read for these browser tests.
+
+Cleanup is implemented and tested (preview by default, `--execute` to delete demo data older than 24 hours); no recurring cleanup job is enabled. File sessions target the current single web replica and can reset on redeployment. Simulated refunds remain an optional future feature, not implemented.
 
 ## Stable public links
 
