@@ -48,3 +48,11 @@ The shared demo API key protects writes; it does not model merchant identity. Re
 ## Verification
 
 PHPUnit exercises the actual Symfony HTTP kernel and Doctrine persistence. Local defaults use a disposable SQLite file; CI runs the same tests against migrated PostgreSQL, including a direct unique-constraint test. This is complemented by live Railway smoke checks; results are recorded in STATUS.md.
+
+## Interactive web demonstration
+
+Twig renders `/demo`; native JavaScript calls only `/demo/payments` and `/demo/history`. `DemoController` handles HTTP/session checks, `DemoPaymentInput` parses constrained decimal strings without floats, and `DemoService` selects a server-owned demo merchant and applies quotas before delegating to the existing `PaymentService`. No copy of the payment/idempotency logic is introduced.
+
+A native session lock serializes writes for one visitor, so the database-backed 10-payment quota is checked inside that lock. Sessions expire after one hour; a fixed one-minute window caps demo requests at 30. CSRF tokens bind actions to the session. The demo code never accesses the API key. API authentication remains unchanged.
+
+The explicit demo flag enables safe age-based cleanup via `app:demo:cleanup` (preview by default, `--execute` for deletion). Limits apply to one session, not to a person; cookie resets bypass them. File sessions suit the current single replica and are not shared across replicas/deployments.

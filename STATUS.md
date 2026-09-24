@@ -2,6 +2,12 @@
 
 Verified on 24 September 2026. **MVP functional; project remains in development.** Independent educational simulation; no affiliation with Lemonway, no real payments or banking data.
 
+## Interactive demo update
+
+Implemented locally: Twig/native-JavaScript `/demo`, accepted/declined scenarios, same-UUID retry, per-session history, exact euro-to-cent parsing, €100 maximum, 10-payment quota, 30 requests/minute, CSRF protection and one-hour sessions. The existing PaymentService and API protection are retained. Demo records are explicitly marked and a preview-first cleanup command is provided.
+
+Local tests: **28 tests / 148 assertions passing**; **PHPStan level 6: zero errors**. Real Chrome checks pass for creation, replay with identical UUID despite form edits, declined simulation, maximum amount, persistent session history and mobile visitor isolation. No API-key header is sent by the demo. CI and public deployment of this update are pending verification.
+
 ## Stable public links
 
 - GitHub: https://github.com/tarekfrk79-svg/merchant-payments-api-php

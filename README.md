@@ -1,5 +1,18 @@
 # MerchantPay API
 
+## [▶ Try the interactive demo — no setup or API key needed](https://merchantpay-production.up.railway.app/demo)
+
+**Simulation pédagogique indépendante, sans paiement réel ni donnée bancaire.** No affiliation with Lemonway.
+
+1. Open `/demo`, enter an amount from €0.01 to €100 and a fictional reference (or leave it blank).
+2. Choose an accepted or declined payment and click **Simuler le paiement**.
+3. Click **Réessayer le même paiement**: the same UUID returns with HTTP 200 and no new history entry.
+
+Each new simulation gets an idempotency key. Retry preserves its original payload and key even if the form changes. The existing PHP `PaymentService` runs server-side; the browser never receives or needs the protected API key.
+
+The visitor session lasts one hour, allows 10 payments and 30 demo requests per minute. Retries remain possible after the payment quota is reached, subject to the request rate limit. The session history is isolated between visitors; use fictional references only.
+
+
 [![Quality](https://github.com/tarekfrk79-svg/merchant-payments-api-php/actions/workflows/ci.yml/badge.svg)](https://github.com/tarekfrk79-svg/merchant-payments-api-php/actions/workflows/ci.yml)
 
 **An independent educational API for simulated merchant payments. No affiliation with Lemonway. No real payments and no banking data.**
@@ -16,6 +29,7 @@
 | Method | Route | Behavior |
 | --- | --- | --- |
 | GET | `/` | Project presentation and live API status |
+| GET | `/demo` | Public interactive Twig/JavaScript demo |
 | GET | `/health` | Liveness JSON; does not assert database readiness |
 | POST | `/api/merchants` | Register a demo merchant (201) |
 | GET | `/api/merchants/{id}` | Read a merchant |
@@ -88,3 +102,16 @@ Production errors are JSON without stack traces. API keys, idempotency keys and 
 - Stronger deployment gates and immutable image/action pinning.
 
 MIT licensed.
+
+## Demo isolation and cleanup
+
+`/demo/payments` is a constrained session-based demo endpoint, separate from the API-key-protected `/api/*` writes. It accepts only amount, fictional reference, outcome and a demo idempotency key. Merchant identity is selected server-side. A session-bound CSRF token is required for demo actions/history; it is unrelated to the private API key. Money strings are converted to integer cents without float arithmetic.
+
+Demo merchants carry an explicit `is_demo` database flag. The command below previews demo merchants older than 24 hours; add `--execute` to remove their payments and then the merchants atomically. Regular API merchants are preserved. Scheduling cleanup is optional and is not enabled automatically.
+
+```bash
+php bin/console app:demo:cleanup
+php bin/console app:demo:cleanup --execute
+```
+
+Native file sessions provide locking for concurrent requests, with HttpOnly/SameSite cookies and Secure cookies in production. Keep one Railway web replica with this simple storage: sessions and limits can reset on redeploy or when a visitor clears cookies. This is demo containment, not global abuse prevention. Scaling would require shared locking session storage and a shared rate limiter. Existing API read routes remain public.
