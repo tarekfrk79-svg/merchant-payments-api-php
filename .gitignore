@@ -1,0 +1,9 @@
+/vendor/
+/var/
+.env
+.env.*
+!.env.example
+/auth.json
+/.railway/
+*.log
+.phpunit.cache/
