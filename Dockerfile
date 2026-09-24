@@ -5,6 +5,6 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --prefer-dist --no-interaction
 COPY . .
-RUN composer dump-autoload --no-dev --classmap-authoritative && a2enmod rewrite && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf && mkdir -p var && chown -R www-data:www-data var
+RUN composer dump-autoload --no-dev --classmap-authoritative && a2dismod mpm_event mpm_worker && a2enmod mpm_prefork rewrite && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf && mkdir -p var && chown -R www-data:www-data var
 ENV APP_ENV=prod APP_DEBUG=0
 CMD ["bash", "bin/start"]
