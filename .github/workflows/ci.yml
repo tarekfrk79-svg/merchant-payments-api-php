@@ -1,0 +1,39 @@
+name: Quality
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: merchantpay_test
+          POSTGRES_USER: merchantpay
+          POSTGRES_PASSWORD: ci-only-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U merchantpay -d merchantpay_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      APP_ENV: test
+      APP_DEBUG: '0'
+      APP_SECRET: ci-only-secret
+      DEMO_API_KEY: test-api-key
+      DATABASE_URL: postgresql://merchantpay:ci-only-password@127.0.0.1:5432/merchantpay_test?serverVersion=17&charset=utf8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, pdo_sqlite, mbstring, dom, xml
+          coverage: none
+          tools: composer:v2
+      - run: composer validate --strict
+      - run: composer install --prefer-dist --no-interaction
+      - run: php bin/console doctrine:migrations:migrate --no-interaction
+      - run: php bin/console doctrine:schema:validate
+      - run: composer check

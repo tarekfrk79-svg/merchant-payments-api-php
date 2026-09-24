@@ -1,5 +1,8 @@
-#!/usr/bin/env bash
-set -euo pipefail
-sed -i "s/Listen 80/Listen ${PORT:-8080}/" /etc/apache2/ports.conf
-sed -i "s/:80>/:${PORT:-8080}>/" /etc/apache2/sites-available/000-default.conf
-exec apache2-foreground
+#!/bin/sh
+set -eu
+php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+# Ensure cache created by migrations remains writable by PHP-FPM.
+chown -R www-data:www-data /app/var
+sed "s/__PORT__/${PORT:-8080}/g" /app/deploy/nginx.conf > /etc/nginx/http.d/default.conf
+php-fpm -D
+exec nginx -g 'daemon off;'

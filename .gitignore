@@ -7,3 +7,4 @@
 /.railway/
 *.log
 .phpunit.cache/
+/config/reference.php

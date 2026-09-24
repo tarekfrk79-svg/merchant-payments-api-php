@@ -1,6 +1,7 @@
 framework:
     secret: '%env(APP_SECRET)%'
-    test: true
     router:
         utf8: true
+    validation:
+        enable_attributes: true
     handle_all_throwables: true
