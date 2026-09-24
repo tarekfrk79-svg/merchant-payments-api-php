@@ -8,3 +8,6 @@
 *.log
 .phpunit.cache/
 /config/reference.php
+
+__pycache__/
+*.pyc

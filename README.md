@@ -62,11 +62,11 @@ export DEMO_API_KEY
 bash scripts/demo.sh
 ```
 
-The script checks health, creates a fictional merchant, creates a payment, repeats it (same ID), provokes a 409 and reads the payment/list. Requires curl and Python 3. It leaves a few fictional demo records in the database. See [curl examples](docs/curl.md) for individual calls.
+The script checks health, creates a fictional merchant, creates a payment, repeats it (same ID), provokes a 409 and reads the payment/list. Requires Bash and Python 3. It leaves a few fictional demo records in the database. See [curl examples](docs/curl.md) for individual calls.
 
 ## Deployment
 
-Railway builds the Dockerfile with PHP 8.4-FPM and Nginx. `bin/start` applies migrations before serving; failed migrations stop the deployment. `/health` is the deployment health check. GitHub `main` is the service source. PostgreSQL is a separate Railway service with a persistent volume; `DATABASE_URL` uses its private variable reference. Keep the existing project/service/domain for stable CV links.
+Railway builds the Dockerfile with PHP 8.4-FPM and Nginx. `bin/start` applies migrations before serving; failed migrations stop the deployment. `/health` is the deployment health check. GitHub `main` is the service source. PostgreSQL is a separate Railway service with a persistent volume; `DATABASE_URL` uses its private variable reference with `?serverVersion=18.0.0&charset=utf8` (Railway PostgreSQL 18). Keep the existing project/service/domain for stable CV links.
 
 | Variable | Purpose |
 | --- | --- |
